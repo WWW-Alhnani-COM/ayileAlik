@@ -584,12 +584,55 @@
             detailContent.innerHTML = `
                 <div class="detail-img-box"><img src="${product.image_url}" onerror="this.src='https://via.placeholder.com/300'"></div>
                 <div class="detail-info">
-                    <h1 class="detail-title">${product.name}</h1>
-                    <span class="detail-price">$${product.price}</span>
-                    <p style="color:#666; font-size:1.1rem; line-height:1.6;">${product.description || 'لا يوجد وصف.'}</p>
-                    <ul class="specs-list"><li><i class="fas fa-check-circle"></i> ضمان لمدة سنتين</li><li><i class="fas fa-check-circle"></i> توصيل سريع</li></ul>
-                    <button class="enter-btn-main" onclick="addToCart(${product.id})">أضف للسلة الآن</button>
-                </div>
+    <h1 class="detail-title">${product.name}</h1>
+    <span class="detail-price">$${product.price}</span>
+    <p style="color:#666; font-size:1.1rem; line-height:1.6;">${product.description || 'لا يوجد وصف.'}</p>
+    
+    <ul class="specs-list">
+        <li><i class="fas fa-check-circle"></i> ضمان لمدة سنتين</li>
+        <li><i class="fas fa-shipping-fast"></i> توصيل سريع</li>
+    </ul>
+
+    <button class="enter-btn-main" onclick="addToCart(${product.id})">أضف للسلة الآن</button>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div class="trust-features" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+        
+        <div class="feature-item" style="display: flex; align-items: flex-start; gap: 10px;">
+            <i class="fas fa-truck-moving" style="color: #27ae60; margin-top: 5px;"></i>
+            <div>
+                <strong style="display: block; font-size: 0.9rem;">توصيل سريع</strong>
+                <small style="color: #777;">استلم طلبك في وقته، في أي وقت</small>
+            </div>
+        </div>
+
+        <div class="feature-item" style="display: flex; align-items: flex-start; gap: 10px;">
+            <i class="fas fa-shield-check" style="color: #27ae60; margin-top: 5px;"></i>
+            <div>
+                <strong style="display: block; font-size: 0.9rem;">دائماً موثوقة</strong>
+                <small style="color: #777;">نحن نبيع المنتجات الأصلية 100 %</small>
+            </div>
+        </div>
+
+        <div class="feature-item" style="display: flex; align-items: flex-start; gap: 10px;">
+            <i class="fas fa-undo-alt" style="color: #27ae60; margin-top: 5px;"></i>
+            <div>
+                <strong style="display: block; font-size: 0.9rem;">سهولة إعادة المنتج</strong>
+                <small style="color: #777;">سياسة إعادة تمكنك من التسوق بسهولة</small>
+            </div>
+        </div>
+
+        <div class="feature-item" style="display: flex; align-items: flex-start; gap: 10px;">
+            <i class="fas fa-lock" style="color: #27ae60; margin-top: 5px;"></i>
+            <div>
+                <strong style="display: block; font-size: 0.9rem;">تسوق بأمان</strong>
+                <small style="color: #777;">ستكون بياناتك محمية دائماً</small>
+            </div>
+        </div>
+
+    </div>
+</div>
             `;
             switchTab('product-detail');
         }

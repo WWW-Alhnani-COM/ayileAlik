@@ -116,6 +116,91 @@
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* تنسيق دوائر الألوان */
+        .color-circle {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin: 2px;
+            border: 1px solid #ddd;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .color-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* تنسيق اختيار الألوان الجديد */
+        .color-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .color-option.selected {
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+        }
+
+        .selected-colors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .selected-color {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .selected-color-preview {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+        }
+
+        .remove-color {
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
         /* Mobile */
         @media (max-width: 768px) {
             .sidebar {
@@ -134,6 +219,11 @@
 
             .main-content { margin-right: 0; padding: 20px; padding-bottom: 100px; }
             .header h2 { font-size: 1.6rem; }
+            
+            .color-option {
+                width: 35px;
+                height: 35px;
+            }
         }
     </style>
 </head>
@@ -341,7 +431,16 @@
                     <button class="btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> إضافة جديد</button>
                 </div>
                 <table id="productsTable">
-                    <thead><tr><th>الصورة</th><th>الاسم</th><th>السعر</th><th>إجراءات</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>الصورة</th>
+                            <th>الاسم</th>
+                            <th>الألوان</th>
+                            <th>السعة</th>
+                            <th>السعر</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -382,18 +481,47 @@
     <div id="productModal" class="modal">
         <div class="modal-content">
             <h3 id="modalTitle" style="margin-bottom:20px;">إضافة منتج</h3>
-            <input type="hidden" id="editProductId"> 
+            <input type="hidden" id="editProductId">
             
-            <div class="form-group"><label>اسم الجوال</label><input type="text" id="pName" class="form-control"></div>
-            <div class="form-group"><label>السعر ($)</label><input type="number" id="pPrice" class="form-control"></div>
+            <div class="form-group">
+                <label>اسم الجوال</label>
+                <input type="text" id="pName" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label>السعر ($)</label>
+                <input type="number" id="pPrice" class="form-control">
+            </div>
+            
+            <!-- قسم الألوان المحدث -->
+            <div class="form-group">
+                <label>الألوان المتاحة</label>
+                <div class="color-selector" id="colorSelector">
+                    <!-- سيتم ملؤها بالجافاسكريبت -->
+                </div>
+                <div id="selectedColors" class="selected-colors">
+                    <!-- الألوان المختارة تظهر هنا -->
+                </div>
+                <input type="hidden" id="pColors">
+            </div>
+            
+            <!-- قسم سعة الذاكرة -->
+            <div class="form-group">
+                <label>سعة الذاكرة المتاحة (مفصولة بفاصلة)</label>
+                <input type="text" id="pStorage" class="form-control" placeholder="مثال: 64GB, 128GB, 256GB">
+                <small style="color:#666; font-size:0.8rem;">أدخل السعات بالميجابايت أو الجيجابايت مفصولة بفاصلة</small>
+            </div>
             
             <div class="form-group">
                 <label>صورة المنتج</label>
                 <input type="file" id="pImgFile" class="form-control" accept="image/*">
                 <div id="currentImgPreview" style="margin-top:5px; font-size:0.8rem; color:#666; font-weight:600;"></div>
             </div>
-
-            <div class="form-group"><label>المواصفات / الوصف</label><textarea id="pDesc" class="form-control" rows="3"></textarea></div>
+            
+            <div class="form-group">
+                <label>المواصفات / الوصف</label>
+                <textarea id="pDesc" class="form-control" rows="3"></textarea>
+            </div>
             
             <div style="display:flex; gap:10px; align-items:center;">
                 <button class="btn-primary" onclick="saveProduct()" id="saveBtn">حفظ</button>
@@ -407,6 +535,27 @@
         const SUPABASE_URL = 'https://wetluuertelivaztjwhy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_Bx2bp8LptcUFrN3dejNE2Q_-j6Y9Ln1';
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // قائمة الألوان الشائعة للجوالات
+        const commonColors = [
+            { name: "أحمر", value: "#FF0000" },
+            { name: "أزرق", value: "#0000FF" },
+            { name: "أخضر", value: "#00FF00" },
+            { name: "أسود", value: "#000000" },
+            { name: "أبيض", value: "#FFFFFF" },
+            { name: "رمادي", value: "#808080" },
+            { name: "فضي", value: "#C0C0C0" },
+            { name: "ذهبي", value: "#FFD700" },
+            { name: "وردي", value: "#FFC0CB" },
+            { name: "أرجواني", value: "#800080" },
+            { name: "أزرق سماوي", value: "#00FFFF" },
+            { name: "أخضر فاتح", value: "#90EE90" },
+            { name: "برتقالي", value: "#FFA500" },
+            { name: "بني", value: "#A52A2A" },
+            { name: "زهري", value: "#FF69B4" }
+        ];
+
+        let selectedColors = [];
 
         async function loadData() {
             const { data: products } = await db.from('products').select('*').order('id', { ascending: false });
@@ -424,17 +573,33 @@
 
         function renderProducts(list) {
             const tbody = document.querySelector('#productsTable tbody');
-            tbody.innerHTML = list.map(p => `
-                <tr>
-                    <td><img src="${p.image_url}" width="50" height="50" style="object-fit:contain; background:#f9f9f9; border-radius:10px; border:1px solid #eee;"></td>
-                    <td><b>${p.name}</b></td>
-                    <td style="color:var(--primary-red); font-weight:bold;">$${p.price}</td>
-                    <td>
-                        <button class="btn-icon btn-edit" onclick='openEditModal(${JSON.stringify(p)})'><i class="fas fa-edit"></i></button>
-                        <button class="btn-icon btn-delete" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = list.map(p => {
+                // عرض الألوان كدوائر صغيرة
+                const colorsHTML = p.colors && p.colors.length > 0 
+                    ? p.colors.map(color => 
+                        `<div class="color-circle" style="background-color:${color};" title="${color}"></div>`
+                    ).join('')
+                    : '<span style="color:#888">لا توجد</span>';
+                
+                // عرض سعة الذاكرة
+                const storageHTML = p.storage_options && p.storage_options.length > 0
+                    ? p.storage_options.join(', ')
+                    : '<span style="color:#888">لا توجد</span>';
+                
+                return `
+                    <tr>
+                        <td><img src="${p.image_url}" width="50" height="50" style="object-fit:contain; background:#f9f9f9; border-radius:10px; border:1px solid #eee;"></td>
+                        <td><b>${p.name}</b></td>
+                        <td>${colorsHTML}</td>
+                        <td>${storageHTML}</td>
+                        <td style="color:var(--primary-red); font-weight:bold;">$${p.price}</td>
+                        <td>
+                            <button class="btn-icon btn-edit" onclick='openEditModal(${JSON.stringify(p)})'><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function renderOrders(list) {
@@ -477,14 +642,88 @@
             else alert('❌ خطأ: ' + error.message);
         }
 
+        // إنشاء واجهة اختيار الألوان
+        function initColorSelector() {
+            const colorSelector = document.getElementById('colorSelector');
+            colorSelector.innerHTML = commonColors.map(color => `
+                <div class="color-option ${selectedColors.includes(color.value) ? 'selected' : ''}" 
+                     style="background-color: ${color.value};"
+                     onclick="toggleColor('${color.value}', '${color.name}')"
+                     title="${color.name}">
+                    ${selectedColors.includes(color.value) ? '✓' : ''}
+                </div>
+            `).join('');
+            
+            updateSelectedColorsDisplay();
+        }
+
+        // تبديل اختيار اللون
+        function toggleColor(colorValue, colorName) {
+            const index = selectedColors.indexOf(colorValue);
+            
+            if (index === -1) {
+                // إضافة اللون
+                selectedColors.push(colorValue);
+            } else {
+                // إزالة اللون
+                selectedColors.splice(index, 1);
+            }
+            
+            // تحديث الواجهة
+            initColorSelector();
+            updateSelectedColorsDisplay();
+        }
+
+        // تحديث عرض الألوان المختارة
+        function updateSelectedColorsDisplay() {
+            const selectedColorsContainer = document.getElementById('selectedColors');
+            const colorsInput = document.getElementById('pColors');
+            
+            // تحديث حقل الإدخال المخفي
+            colorsInput.value = selectedColors.join(',');
+            
+            // عرض الألوان المختارة
+            if (selectedColors.length === 0) {
+                selectedColorsContainer.innerHTML = '<div style="color:#888; text-align:center; width:100%;">لم يتم اختيار أي ألوان بعد</div>';
+            } else {
+                selectedColorsContainer.innerHTML = selectedColors.map(color => {
+                    const colorInfo = commonColors.find(c => c.value === color);
+                    const colorName = colorInfo ? colorInfo.name : color;
+                    return `
+                        <div class="selected-color">
+                            <div class="selected-color-preview" style="background-color: ${color};"></div>
+                            <span>${colorName}</span>
+                            <span class="remove-color" onclick="removeColor('${color}')">×</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // إزالة لون محدد
+        function removeColor(colorValue) {
+            const index = selectedColors.indexOf(colorValue);
+            if (index !== -1) {
+                selectedColors.splice(index, 1);
+                initColorSelector();
+                updateSelectedColorsDisplay();
+            }
+        }
+
         function openModal() {
             document.getElementById('modalTitle').innerText = 'إضافة منتج جديد';
             document.getElementById('editProductId').value = '';
             document.getElementById('pName').value = '';
             document.getElementById('pPrice').value = '';
+            document.getElementById('pStorage').value = '';
             document.getElementById('pDesc').value = '';
             document.getElementById('pImgFile').value = '';
             document.getElementById('currentImgPreview').innerText = '';
+            
+            // إعادة تعيين الألوان المختارة
+            selectedColors = [];
+            initColorSelector();
+            
             document.getElementById('productModal').classList.add('active');
         }
 
@@ -493,8 +732,14 @@
             document.getElementById('editProductId').value = product.id;
             document.getElementById('pName').value = product.name;
             document.getElementById('pPrice').value = product.price;
+            document.getElementById('pStorage').value = product.storage_options ? product.storage_options.join(', ') : '';
             document.getElementById('pDesc').value = product.description;
             document.getElementById('currentImgPreview').innerText = 'ملاحظة: اترك الصورة فارغة للاحتفاظ بالصورة القديمة.';
+            
+            // تحميل الألوان الحالية للمنتج
+            selectedColors = product.colors || [];
+            initColorSelector();
+            
             document.getElementById('productModal').classList.add('active');
         }
 
@@ -502,15 +747,23 @@
             const id = document.getElementById('editProductId').value;
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
+            const colors = selectedColors;
+            const storage = document.getElementById('pStorage').value
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => s);
             const desc = document.getElementById('pDesc').value;
             const fileInput = document.getElementById('pImgFile');
             const file = fileInput.files[0];
-
-            if(!name || !price) { alert('الاسم والسعر مطلوبان'); return; }
-
+            
+            if(!name || !price) { 
+                alert('الاسم والسعر مطلوبان'); 
+                return; 
+            }
+            
             document.getElementById('saveBtn').disabled = true;
             document.getElementById('loader').style.display = 'block';
-
+            
             try {
                 let imageUrl = null;
                 if (file) {
@@ -519,21 +772,35 @@
                     if(uploadError) throw uploadError;
                     imageUrl = SUPABASE_URL + '/storage/v1/object/public/images/' + fileName;
                 }
-
+                
+                const productData = { 
+                    name: name, 
+                    price: price, 
+                    description: desc,
+                    colors: colors,
+                    storage_options: storage
+                };
+                
+                if (imageUrl) productData.image_url = imageUrl;
+                
                 if (id) {
-                    const updateData = { name: name, price: price, description: desc };
-                    if (imageUrl) updateData.image_url = imageUrl;
-                    const { error } = await db.from('products').update(updateData).eq('id', id);
+                    // تحديث المنتج
+                    const { error } = await db.from('products')
+                        .update(productData)
+                        .eq('id', id);
                     if(error) throw error;
                     alert('✅ تم تعديل المنتج بنجاح');
                 } else {
-                    if (!imageUrl) { throw new Error('يرجى اختيار صورة للمنتج الجديد'); }
-                    const { error } = await db.from('products').insert({
-                        name: name, price: price, image_url: imageUrl, description: desc
-                    });
+                    // إضافة منتج جديد
+                    if (!imageUrl) { 
+                        throw new Error('يرجى اختيار صورة للمنتج الجديد'); 
+                    }
+                    const { error } = await db.from('products')
+                        .insert([productData]);
                     if(error) throw error;
                     alert('✅ تمت الإضافة بنجاح');
                 }
+                
                 closeModal();
                 loadData();
             } catch (err) {
@@ -544,7 +811,9 @@
             }
         }
 
-        function closeModal() { document.getElementById('productModal').classList.remove('active'); }
+        function closeModal() { 
+            document.getElementById('productModal').classList.remove('active'); 
+        }
 
         async function deleteProduct(id) {
             if(confirm('هل أنت متأكد من الحذف النهائي؟')) {
@@ -567,7 +836,8 @@
             document.getElementById('pageTitle').innerText = titles[pageId];
         }
 
+        // تحميل البيانات عند بدء التشغيل
         loadData();
     </script>
 </body>
-              </html>
+</html>
